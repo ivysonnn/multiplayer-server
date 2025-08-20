@@ -1,2 +1,2 @@
 # multiplayer-server
-Webserver that users can connect and move around with other players
+server that users can connect and move around with other players
