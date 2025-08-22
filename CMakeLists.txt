@@ -1,33 +1,39 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(multiplayer-server)
+project(net-server)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
 
-# --- Defina o caminho para sua instalação local do Raylib ---
-# Usamos $ENV{HOME} porque o CMake não entende o atalho '~'.
+set(source_dir "${PROJECT_SOURCE_DIR}") 
+
 set(RAYLIB_PATH "$ENV{HOME}/dev/raylib")
+set(ASIO_PATH "$ENV{HOME}/dev/asio")
 
+set(COMMON_SOURCES 
+  ${source_dir}/src/common/Game.cpp
+  ${source_dir}/src/common/Player.cpp
+)
+set(SERVER_SOURCES
+  ${source_dir}/src/server/Main.cpp
+  ${source_dir}/src/server/NetworkServer.cpp
+)
+set(CLIENT_SOURCES
+  ${source_dir}/src/client/Main.cpp 
+  ${source_dir}/src/client/NetworkClient.cpp
+)
 
-set(source_dir "${PROJECT_SOURCE_DIR}/src/")
+add_executable(server ${COMMON_SOURCES} ${SERVER_SOURCES})
+target_include_directories(server PRIVATE "${ASIO_PATH}/include")
 
-file(GLOB source_files "${source_dir}/*.cpp")
+target_compile_definitions(server PRIVATE IS_SERVER)
 
-add_executable(multiplayer-server ${source_files})
+add_executable(client ${COMMON_SOURCES} ${CLIENT_SOURCES})
+target_include_directories(client PRIVATE "${ASIO_PATH}/include" "${RAYLIB_PATH}/src")
+target_link_libraries(client PRIVATE 
+    "${RAYLIB_PATH}/src/libraylib.a" 
+    GL m pthread dl rt X11 # Bibliotecas que a Raylib precisa no Linux
+)
 
-# --- Configure as dependências do Raylib ---
-
-# 1. Adicione o diretório dos arquivos de cabeçalho (.h)
-#    Isso permite que você use #include "raylib.h" no seu código.
-target_include_directories(multiplayer-server PRIVATE "${RAYLIB_PATH}/src")
-
-# 2. Link a biblioteca estática (.a) que você compilou.
-#    Este é o passo que conecta o código do Raylib ao seu programa.
-target_link_libraries(multiplayer-server PRIVATE "${RAYLIB_PATH}/src/libraylib.a")
-
-
-# --- NÃO ESQUEÇA: Raylib precisa de outras bibliotecas do sistema ---
-# No Linux, estas são geralmente necessárias.
-target_link_libraries(multiplayer-server PRIVATE -lGL -lm -lpthread -ldl -lrt -lX11)
+target_compile_definitions(client PRIVATE IS_CLIENT)
