@@ -4,7 +4,9 @@
 #include <iostream>
 
 #ifdef IS_CLIENT
-#include <raylib.h>
+using namespace {
+  #include <raylib.h>
+}
 #endif
 
 #include <math.h>
