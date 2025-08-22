@@ -3,9 +3,7 @@
 
 #include <chrono>
 #ifdef IS_CLIENT
-using namespace ray {
-  #include <raylib.h>
-}
+#include <raylib.h>
 #endif
 #include "GameState.h"
 #include "Player.h"
