@@ -19,6 +19,6 @@ void Player::Update(float deltaX, float deltaY, float deltaTime) {
 }
 #ifdef IS_CLIENT
 void Player::Draw() {
-  ray::DrawCircle(pos.x, pos.y, 40, Color{rgb.r, rgb.g, rgb.b, rgb.a});
+  DrawCircle(pos.x, pos.y, 40, Color{rgb.r, rgb.g, rgb.b, rgb.a});
 }
 #endif
