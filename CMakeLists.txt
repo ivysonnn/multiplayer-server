@@ -8,9 +8,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
 
 set(source_dir "${PROJECT_SOURCE_DIR}") 
 
-set(RAYLIB_PATH "$ENV{HOME}/dev/raylib")
-set(ASIO_PATH "$ENV{HOME}/dev/asio")
-
 set(COMMON_SOURCES 
   ${source_dir}/src/common/Game.cpp
   ${source_dir}/src/common/Player.cpp
@@ -22,17 +19,30 @@ set(CLIENT_SOURCES
   ${source_dir}/src/client/Main.cpp 
 )
 
-add_executable(server ${COMMON_SOURCES} ${SERVER_SOURCES})
-target_include_directories(server PRIVATE "${ASIO_PATH}/include" "${source_dir}/src/common/include")
+#asio
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(ASIO REQUIRED asio)
+#raylib
+find_package(raylib REQUIRED)
 
-target_compile_definitions(server PRIVATE IS_SERVER)
+add_library(common INTERFACE)
 
-add_executable(client ${COMMON_SOURCES} ${CLIENT_SOURCES})
-target_include_directories(client PRIVATE "${ASIO_PATH}/include" "${RAYLIB_PATH}/src" "${source_dir}/src/common/include")
-target_link_libraries(client 
-  PRIVATE 
-    "${RAYLIB_PATH}/src/libraylib.a" 
-    GL m pthread dl rt X11 # Bibliotecas que a Raylib precisa no Linux
+target_include_directories(common INTERFACE
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/common/include
 )
 
+add_executable(server ${COMMON_SOURCES} ${SERVER_SOURCES})
+target_compile_definitions(server PRIVATE IS_SERVER)
+target_link_libraries(server 
+  PRIVATE 
+    common
+)
+
+add_executable(client ${COMMON_SOURCES} ${CLIENT_SOURCES})
 target_compile_definitions(client PRIVATE IS_CLIENT)
+target_include_directories(client PRIVATE "${ASIO_PATH}/include" "${source_dir}/src/common/include")
+target_link_libraries(client 
+  PRIVATE 
+    common
+    raylib
+)
