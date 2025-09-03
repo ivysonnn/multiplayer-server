@@ -1,3 +1,5 @@
+#pragma once
+
 #include <thread>
 #include <vector>
 #include <iostream>
@@ -5,12 +7,13 @@
 #include <ostream>
 #include <type_traits>
 #include <memory>
+#include <cstring>
 
 namespace ivs {
-  namespace msg {
+  namespace net {
     enum class message_types : uint8_t {
-      PlayerPosition,
       PlayerInput,
+      PlayerPosition,
     };
 
     template <typename T>
@@ -50,9 +53,5 @@ namespace ivs {
         return msg;
       }
     };
-  }
-
-  namespace net {
-
   }
 }
